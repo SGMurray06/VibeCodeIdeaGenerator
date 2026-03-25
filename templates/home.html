@@ -1,25 +1,35 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>What do you both bring to the table?</h1>
+<section class="hero">
+    <i data-lucide="lightbulb" class="hero-icon"></i>
+    <h1>What do you both bring to the table?</h1>
+    <p class="hero-subtitle">Describe your combined experience and let AI generate tailored app ideas</p>
+</section>
 
-<form action="/generate" method="post" id="generate-form">
-    <div class="experience-grid">
-        <div>
-            <label for="euty_experience"><strong>Euty's Experience</strong></label>
-            <textarea id="euty_experience" name="euty_experience" rows="6"
-                      placeholder="Describe Euty's work experience, skills, and domain knowledge..."
-                      required>{{ euty_experience or '25 years private equity and listed markets experience' }}</textarea>
+<section class="input-section">
+    <form action="/generate" method="post" id="generate-form">
+        <div class="experience-grid">
+            <div>
+                <label for="euty_experience"><i data-lucide="user"></i> <strong>Euty's Experience</strong></label>
+                <textarea id="euty_experience" name="euty_experience" rows="6"
+                          placeholder="Describe Euty's work experience, skills, and domain knowledge..."
+                          required>{{ euty_experience or '25 years private equity and listed markets experience' }}</textarea>
+                <small class="input-hint">Skills, domain knowledge, years of experience...</small>
+            </div>
+            <div>
+                <label for="simon_experience"><i data-lucide="user"></i> <strong>Simon's Experience</strong></label>
+                <textarea id="simon_experience" name="simon_experience" rows="6"
+                          placeholder="Describe Simon's work experience, skills, and domain knowledge..."
+                          required>{{ simon_experience or '20 years private equity and 5 years AI research and vibe coder' }}</textarea>
+                <small class="input-hint">Skills, domain knowledge, years of experience...</small>
+            </div>
         </div>
-        <div>
-            <label for="simon_experience"><strong>Simon's Experience</strong></label>
-            <textarea id="simon_experience" name="simon_experience" rows="6"
-                      placeholder="Describe Simon's work experience, skills, and domain knowledge..."
-                      required>{{ simon_experience or '20 years private equity and 5 years AI research and vibe coder' }}</textarea>
-        </div>
-    </div>
-    <button type="submit" id="generate-btn">Generate 3 App Ideas</button>
-</form>
+        <button type="submit" id="generate-btn" class="btn-primary-gradient">
+            <i data-lucide="wand-2"></i> Generate 3 App Ideas
+        </button>
+    </form>
+</section>
 
 {% if error %}
 <article class="error-banner">
@@ -29,18 +39,18 @@
 
 <div id="ideas-section">
 {% if ideas %}
-<h2>Your Tailored App Ideas</h2>
+<h2><i data-lucide="sparkles"></i> Your Tailored App Ideas</h2>
 <div class="ideas-grid">
     {% for idea in ideas %}
     <article class="idea-card">
-        <h3>{{ idea.title }}</h3>
+        <h3><i data-lucide="zap"></i> {{ idea.title }}</h3>
         <p>{{ idea.summary }}</p>
         <form action="/save" method="post">
             <input type="hidden" name="title" value="{{ idea.title }}">
             <input type="hidden" name="summary" value="{{ idea.summary }}">
             <input type="hidden" name="euty_experience" value="{{ euty_experience }}">
             <input type="hidden" name="simon_experience" value="{{ simon_experience }}">
-            <button type="submit" class="secondary">Save This Idea</button>
+            <button type="submit" class="secondary"><i data-lucide="bookmark-plus"></i> Save This Idea</button>
         </form>
     </article>
     {% endfor %}
@@ -54,24 +64,24 @@
     const ideasSection = document.getElementById('ideas-section');
     const hasServerIdeas = ideasSection.querySelector('.ideas-grid') !== null;
 
-    // If server rendered new ideas, save them to sessionStorage
     if (hasServerIdeas) {
         sessionStorage.setItem('vibeIdeas', ideasSection.innerHTML);
         sessionStorage.setItem('vibeEuty', document.getElementById('euty_experience').value);
         sessionStorage.setItem('vibeSimon', document.getElementById('simon_experience').value);
     } else {
-        // Restore from sessionStorage if available
         const cached = sessionStorage.getItem('vibeIdeas');
         if (cached) {
             ideasSection.innerHTML = cached;
+            lucide.createIcons();
         }
     }
 
     document.getElementById('generate-form').addEventListener('submit', function() {
         const btn = document.getElementById('generate-btn');
-        btn.textContent = 'Generating ideas...';
+        btn.innerHTML = '<i data-lucide="loader"></i> Generating ideas...';
         btn.setAttribute('aria-busy', 'true');
         btn.disabled = true;
+        lucide.createIcons();
     });
 </script>
 {% endblock %}

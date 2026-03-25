@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Saved Ideas</h1>
+<div class="page-header">
+    <h1><i data-lucide="bookmark"></i> Saved Ideas</h1>
+    {% if ideas %}
+    <p class="count">{{ ideas|length }} idea{{ 's' if ideas|length != 1 }} saved</p>
+    {% endif %}
+</div>
 
 {% if saved %}
-<article class="success-banner">
+<div class="success-banner">
+    <i data-lucide="check-circle"></i>
     <p>Idea saved successfully!</p>
-</article>
+</div>
 {% endif %}
 
 {% if ideas %}
@@ -14,13 +20,13 @@
     {% for idea in ideas %}
     <article class="idea-card">
         <a href="/idea/{{ idea.id }}" class="idea-link">
-            <h3>{{ idea.title }}</h3>
+            <h3><i data-lucide="zap"></i> {{ idea.title }}</h3>
             <p>{{ idea.summary[:150] }}{% if idea.summary|length > 150 %}...{% endif %}</p>
         </a>
         <div class="idea-card-footer">
             <small>Saved {{ idea.created_at.strftime('%b %d, %Y') }}</small>
             {% if idea.deep_dive %}
-            <a href="/idea/{{ idea.id }}" class="badge-analysis" role="button">View Analysis</a>
+            <a href="/idea/{{ idea.id }}" class="badge-analysis"><i data-lucide="bar-chart-2"></i> View Analysis</a>
             {% else %}
             <span class="badge-no-analysis">No analysis yet</span>
             {% endif %}
@@ -29,6 +35,11 @@
     {% endfor %}
 </div>
 {% else %}
-<p>No saved ideas yet. <a href="/">Generate some ideas</a> to get started!</p>
+<div class="empty-state">
+    <i data-lucide="folder-open" class="empty-icon"></i>
+    <h3>No saved ideas yet</h3>
+    <p>Generate some ideas and save your favorites to build your collection.</p>
+    <a href="/" role="button" class="btn-primary-gradient"><i data-lucide="sparkles"></i> Generate Ideas</a>
+</div>
 {% endif %}
 {% endblock %}

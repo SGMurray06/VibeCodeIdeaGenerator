@@ -3,25 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4f46e5">
     <title>{% block title %}VibeCode Idea Generator{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <link rel="stylesheet" href="/static/style.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js" defer></script>
 </head>
 <body>
-    <nav class="container">
+    <nav class="container site-nav">
         <ul>
-            <li><a href="/"><strong>VibeCode Idea Generator</strong></a></li>
+            <li><a href="/"><i data-lucide="sparkles"></i> <strong>VibeCode Idea Generator</strong></a></li>
         </ul>
         <ul>
-            <li><a href="/saved">Saved Ideas</a></li>
+            <li><a href="/saved"><i data-lucide="bookmark"></i> Saved Ideas</a></li>
         </ul>
     </nav>
     <main class="container">
         {% block content %}{% endblock %}
     </main>
     <footer class="container">
-        <small>Built by Euty & Simon — powered by Claude</small>
+        <small>Built with <i data-lucide="heart"></i> by Euty & Simon — <i data-lucide="cpu"></i> powered by Claude</small>
     </footer>
+    <script>document.addEventListener('DOMContentLoaded', () => lucide.createIcons());</script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
