@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}{{ idea.title }} — VibeCode Idea Generator{% endblock %}
+
+{% block content %}
+<hgroup>
+    <h1>{{ idea.title }}</h1>
+    <p>{{ idea.summary }}</p>
+</hgroup>
+
+<details>
+    <summary>Based on experience from Euty & Simon</summary>
+    <div class="experience-grid">
+        <div>
+            <strong>Euty's Experience</strong>
+            <p>{{ idea.euty_experience }}</p>
+        </div>
+        <div>
+            <strong>Simon's Experience</strong>
+            <p>{{ idea.simon_experience }}</p>
+        </div>
+    </div>
+</details>
+
+<hr>
+
+{% if idea.deep_dive %}
+<div class="deep-dive-section">
+    <h2>Deep Dive Analysis</h2>
+    <div class="deep-dive-cards" id="deep-dive-rendered"></div>
+    <template id="deep-dive-raw">{{ idea.deep_dive }}</template>
+</div>
+{% else %}
+<div class="deep-dive-cta">
+    <h2>Ready to go deeper?</h2>
+    <p>Generate a comprehensive analysis covering build requirements, route to market, and adoption strategy.</p>
+    <form action="/idea/{{ idea.id }}/deep-dive" method="post" id="deep-dive-form">
+        <button type="submit" id="deep-dive-btn">Generate Deep Dive Analysis</button>
+    </form>
+</div>
+{% endif %}
+
+<hr>
+
+<div class="detail-actions">
+    <a href="/saved" role="button" class="secondary outline">Back to Saved Ideas</a>
+    <form action="/idea/{{ idea.id }}/delete" method="post" style="display:inline">
+        <button type="submit" class="contrast outline"
+                onclick="return confirm('Delete this idea?')">Delete Idea</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if idea.deep_dive %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+    const raw = document.getElementById('deep-dive-raw').content.textContent;
+    const html = marked.parse(raw);
+    const container = document.getElementById('deep-dive-rendered');
+    container.innerHTML = html;
+
+    // Wrap content between each h2 in a card body div
+    const children = Array.from(container.children);
+    let currentBody = null;
+    children.forEach(el => {
+        if (el.tagName === 'H2') {
+            currentBody = document.createElement('div');
+            currentBody.className = 'deep-dive-card-body';
+            el.after(currentBody);
+        } else if (currentBody) {
+            currentBody.appendChild(el);
+        }
+    });
+</script>
+{% else %}
+<script>
+    document.getElementById('deep-dive-form').addEventListener('submit', function() {
+        const btn = document.getElementById('deep-dive-btn');
+        btn.textContent = 'Generating analysis...';
+        btn.setAttribute('aria-busy', 'true');
+        btn.disabled = true;
+    });
+</script>
+{% endif %}
+{% endblock %}

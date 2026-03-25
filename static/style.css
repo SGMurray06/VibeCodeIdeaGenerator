@@ -1,0 +1,175 @@
+.experience-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .experience-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ideas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.idea-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.idea-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.idea-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.idea-link {
+    display: block;
+}
+
+.idea-link article {
+    cursor: pointer;
+}
+
+.idea-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.badge-analysis {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 20px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.badge-analysis:hover {
+    background: #16213e;
+    color: #fff;
+}
+
+.badge-no-analysis {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.75rem;
+    background: #e8e8e8;
+    color: #888;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+.error-banner {
+    background: #fee;
+    border-left: 4px solid #e55;
+    padding: 1rem 1.5rem;
+}
+
+.success-banner {
+    background: #efe;
+    border-left: 4px solid #5a5;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.detail-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Deep Dive Analysis */
+.deep-dive-section h2 {
+    margin-bottom: 1.5rem;
+}
+
+.deep-dive-cards h2 {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: #fff;
+    padding: 1rem 1.5rem;
+    border-radius: 8px 8px 0 0;
+    margin: 2rem 0 0 0;
+    font-size: 1.25rem;
+}
+
+.deep-dive-cards h2:first-child {
+    margin-top: 0;
+}
+
+.deep-dive-cards h3 {
+    font-size: 1.05rem;
+    color: #1a1a2e;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid #e8e8e8;
+}
+
+.deep-dive-cards ul {
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+}
+
+.deep-dive-cards li {
+    margin-bottom: 0.4rem;
+    line-height: 1.6;
+}
+
+.deep-dive-cards p {
+    line-height: 1.7;
+    margin-bottom: 0.75rem;
+}
+
+.deep-dive-cards > ul,
+.deep-dive-cards > p {
+    padding: 0 1.5rem;
+}
+
+.deep-dive-card-body {
+    background: #fafbfc;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* CTA section when no deep dive exists */
+.deep-dive-cta {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border: 2px dashed #ccc;
+}
+
+.deep-dive-cta h2 {
+    margin-bottom: 0.5rem;
+}
+
+.deep-dive-cta p {
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+}
+
+footer {
+    margin-top: 3rem;
+    padding: 1.5rem 0;
+    text-align: center;
+    opacity: 0.6;
+}

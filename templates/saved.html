@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Saved Ideas</h1>
+
+{% if saved %}
+<article class="success-banner">
+    <p>Idea saved successfully!</p>
+</article>
+{% endif %}
+
+{% if ideas %}
+<div class="ideas-grid">
+    {% for idea in ideas %}
+    <article class="idea-card">
+        <a href="/idea/{{ idea.id }}" class="idea-link">
+            <h3>{{ idea.title }}</h3>
+            <p>{{ idea.summary[:150] }}{% if idea.summary|length > 150 %}...{% endif %}</p>
+        </a>
+        <div class="idea-card-footer">
+            <small>Saved {{ idea.created_at.strftime('%b %d, %Y') }}</small>
+            {% if idea.deep_dive %}
+            <a href="/idea/{{ idea.id }}" class="badge-analysis" role="button">View Analysis</a>
+            {% else %}
+            <span class="badge-no-analysis">No analysis yet</span>
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<p>No saved ideas yet. <a href="/">Generate some ideas</a> to get started!</p>
+{% endif %}
+{% endblock %}
