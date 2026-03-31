@@ -29,7 +29,7 @@
     <template id="deep-dive-raw">{{ idea.deep_dive }}</template>
 </div>
 {% else %}
-<div class="deep-dive-cta">
+<div class="deep-dive-cta" id="deep-dive-cta">
     <i data-lucide="rocket" class="cta-icon"></i>
     <h2>Ready to go deeper?</h2>
     <p>Generate a comprehensive analysis covering build requirements, route to market, and adoption strategy.</p>
@@ -38,6 +38,15 @@
             <i data-lucide="sparkles"></i> Generate Deep Dive Analysis
         </button>
     </form>
+    <div class="generation-progress" id="generation-progress" style="display:none">
+        <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+        </div>
+        <div class="progress-status">
+            <span id="progress-label">Analyzing idea...</span>
+            <span id="progress-timer">0s</span>
+        </div>
+    </div>
 </div>
 {% endif %}
 
@@ -61,10 +70,33 @@
     const container = document.getElementById('deep-dive-rendered');
     container.innerHTML = html;
 
+    // Section icon mapping
+    const sectionIcons = {
+        'build requirements': 'wrench',
+        'first weekend sprint': 'rocket',
+        'route to market': 'map',
+        'growth playbook': 'trending-up',
+    };
+
+    // Callout keyword patterns
+    const calloutKeywords = /cost|unfair advantage|price|experiment|validate|budget|\$\d/i;
+
     const children = Array.from(container.children);
     let currentBody = null;
     children.forEach(el => {
         if (el.tagName === 'H2') {
+            // Add section icon
+            const text = el.textContent.toLowerCase().trim();
+            for (const [key, icon] of Object.entries(sectionIcons)) {
+                if (text.includes(key)) {
+                    const i = document.createElement('i');
+                    i.setAttribute('data-lucide', icon);
+                    el.prepend(i);
+                    el.insertBefore(document.createTextNode(' '), i.nextSibling);
+                    break;
+                }
+            }
+
             currentBody = document.createElement('div');
             currentBody.className = 'deep-dive-card-body';
             el.after(currentBody);
@@ -72,15 +104,97 @@
             currentBody.appendChild(el);
         }
     });
+
+    // Checklist styling for milestone sections
+    container.querySelectorAll('.deep-dive-card-body h3').forEach(h3 => {
+        const text = h3.textContent.toLowerCase();
+        if (text.includes('milestone') || text.includes('30') || text.includes('60') || text.includes('90')) {
+            const nextUl = h3.nextElementSibling;
+            if (nextUl && nextUl.tagName === 'UL') {
+                nextUl.classList.add('checklist');
+            }
+        }
+    });
+
+    // Callout boxes for key insights (max 1 per card body)
+    container.querySelectorAll('.deep-dive-card-body').forEach(body => {
+        let found = false;
+        body.querySelectorAll('li, p').forEach(el => {
+            if (found) return;
+            const strong = el.querySelector('strong');
+            if (strong && calloutKeywords.test(strong.textContent)) {
+                const callout = document.createElement('div');
+                callout.className = 'callout';
+                el.parentNode.insertBefore(callout, el);
+                callout.appendChild(el);
+                found = true;
+            }
+        });
+    });
+
+    lucide.createIcons();
 </script>
 {% else %}
 <script>
-    document.getElementById('deep-dive-form').addEventListener('submit', function() {
+    document.getElementById('deep-dive-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
         const btn = document.getElementById('deep-dive-btn');
         btn.innerHTML = '<i data-lucide="loader"></i> Generating analysis...';
         btn.setAttribute('aria-busy', 'true');
         btn.disabled = true;
         lucide.createIcons();
+
+        const progress = document.getElementById('generation-progress');
+        const fill = document.getElementById('progress-bar-fill');
+        const timer = document.getElementById('progress-timer');
+        const label = document.getElementById('progress-label');
+        progress.style.display = 'block';
+
+        const stages = [
+            { at: 0, text: 'Analyzing idea...' },
+            { at: 15, text: 'Evaluating tech stack...' },
+            { at: 35, text: 'Mapping route to market...' },
+            { at: 55, text: 'Crafting growth playbook...' },
+            { at: 75, text: 'Polishing recommendations...' },
+            { at: 90, text: 'Almost there...' },
+        ];
+
+        let seconds = 0;
+        const expectedDuration = 25;
+
+        const interval = setInterval(() => {
+            seconds++;
+            timer.textContent = seconds + 's';
+
+            const pct = Math.min(95, 100 * (1 - Math.pow(1 - seconds / expectedDuration, 2)));
+            fill.style.width = pct + '%';
+
+            for (let i = stages.length - 1; i >= 0; i--) {
+                if (pct >= stages[i].at) {
+                    label.textContent = stages[i].text;
+                    break;
+                }
+            }
+        }, 1000);
+
+        // Submit via fetch, then redirect when done
+        const form = document.getElementById('deep-dive-form');
+        fetch(form.action, { method: 'POST', redirect: 'follow' })
+            .then(res => {
+                clearInterval(interval);
+                fill.style.width = '100%';
+                label.textContent = 'Done!';
+                setTimeout(() => { window.location.reload(); }, 300);
+            })
+            .catch(err => {
+                clearInterval(interval);
+                label.textContent = 'Something went wrong';
+                btn.innerHTML = '<i data-lucide="sparkles"></i> Retry';
+                btn.removeAttribute('aria-busy');
+                btn.disabled = false;
+                lucide.createIcons();
+            });
     });
 </script>
 {% endif %}

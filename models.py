@@ -15,3 +15,12 @@ class Idea(Base):
     simon_experience = Column(String, nullable=False)
     deep_dive = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class UserProfile(Base):
+    __tablename__ = "user_profiles"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    experience = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)

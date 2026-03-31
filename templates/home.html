@@ -11,23 +11,35 @@
     <form action="/generate" method="post" id="generate-form">
         <div class="experience-grid">
             <div>
-                <label for="euty_experience"><i data-lucide="user"></i> <strong>Euty's Experience</strong></label>
+                <label for="euty_experience"><i data-lucide="user"></i> <strong>Euty: Experience and Current Interest</strong></label>
                 <textarea id="euty_experience" name="euty_experience" rows="6"
                           placeholder="Describe Euty's work experience, skills, and domain knowledge..."
-                          required>{{ euty_experience or '25 years private equity and listed markets experience' }}</textarea>
-                <small class="input-hint">Skills, domain knowledge, years of experience...</small>
+                          required>{{ euty_experience or '' }}</textarea>
+                <div class="textarea-footer">
+                    <small class="input-hint">Skills, domain knowledge, years of experience...</small>
+                    <button type="button" class="btn-save-profile" onclick="saveProfile('Euty', 'euty_experience')" id="save-euty-btn">
+                        <i data-lucide="save"></i> Save
+                    </button>
+                </div>
             </div>
             <div>
-                <label for="simon_experience"><i data-lucide="user"></i> <strong>Simon's Experience</strong></label>
+                <label for="simon_experience"><i data-lucide="user"></i> <strong>Simon: Experience and Current Interest</strong></label>
                 <textarea id="simon_experience" name="simon_experience" rows="6"
                           placeholder="Describe Simon's work experience, skills, and domain knowledge..."
-                          required>{{ simon_experience or '20 years private equity and 5 years AI research and vibe coder' }}</textarea>
-                <small class="input-hint">Skills, domain knowledge, years of experience...</small>
+                          required>{{ simon_experience or '' }}</textarea>
+                <div class="textarea-footer">
+                    <small class="input-hint">Skills, domain knowledge, years of experience...</small>
+                    <button type="button" class="btn-save-profile" onclick="saveProfile('Simon', 'simon_experience')" id="save-simon-btn">
+                        <i data-lucide="save"></i> Save
+                    </button>
+                </div>
             </div>
         </div>
-        <button type="submit" id="generate-btn" class="btn-primary-gradient">
-            <i data-lucide="wand-2"></i> Generate 3 App Ideas
-        </button>
+        <div class="form-actions">
+            <button type="submit" id="generate-btn" class="btn-primary-gradient">
+                <i data-lucide="wand-2"></i> Generate 3 App Ideas
+            </button>
+        </div>
     </form>
 </section>
 
@@ -45,9 +57,12 @@
     <article class="idea-card">
         <h3><i data-lucide="zap"></i> {{ idea.title }}</h3>
         <p>{{ idea.summary }}</p>
+        {% if idea.why_exciting %}
+        <p class="why-exciting"><i data-lucide="sparkle"></i> {{ idea.why_exciting }}</p>
+        {% endif %}
         <form action="/save" method="post">
             <input type="hidden" name="title" value="{{ idea.title }}">
-            <input type="hidden" name="summary" value="{{ idea.summary }}">
+            <input type="hidden" name="summary" value="{{ idea.summary }}{% if idea.why_exciting %} — {{ idea.why_exciting }}{% endif %}">
             <input type="hidden" name="euty_experience" value="{{ euty_experience }}">
             <input type="hidden" name="simon_experience" value="{{ simon_experience }}">
             <button type="submit" class="secondary"><i data-lucide="bookmark-plus"></i> Save This Idea</button>
@@ -57,10 +72,52 @@
 </div>
 {% endif %}
 </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+    async function saveProfile(name, textareaId) {
+        const btn = document.getElementById('save-' + name.toLowerCase() + '-btn');
+        const experience = document.getElementById(textareaId).value.trim();
+
+        if (!experience) return;
+
+        btn.disabled = true;
+        const origHTML = btn.innerHTML;
+        btn.innerHTML = '<i data-lucide="loader"></i> Saving...';
+        lucide.createIcons();
+
+        try {
+            const res = await fetch('/api/profile', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name: name, experience: experience})
+            });
+            const data = await res.json();
+
+            if (data.saved) {
+                btn.innerHTML = '<i data-lucide="check"></i> Saved';
+                btn.classList.add('saved');
+            } else {
+                btn.innerHTML = '<i data-lucide="check"></i> No changes';
+            }
+            lucide.createIcons();
+
+            setTimeout(() => {
+                btn.innerHTML = origHTML;
+                btn.classList.remove('saved');
+                lucide.createIcons();
+            }, 2000);
+        } catch (e) {
+            console.error(e);
+            btn.innerHTML = origHTML;
+            lucide.createIcons();
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
     const ideasSection = document.getElementById('ideas-section');
     const hasServerIdeas = ideasSection.querySelector('.ideas-grid') !== null;
 

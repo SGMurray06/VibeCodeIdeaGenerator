@@ -16,23 +16,39 @@
 {% endif %}
 
 {% if ideas %}
-<div class="ideas-grid">
-    {% for idea in ideas %}
-    <article class="idea-card">
-        <a href="/idea/{{ idea.id }}" class="idea-link">
-            <h3><i data-lucide="zap"></i> {{ idea.title }}</h3>
-            <p>{{ idea.summary[:150] }}{% if idea.summary|length > 150 %}...{% endif %}</p>
-        </a>
-        <div class="idea-card-footer">
-            <small>Saved {{ idea.created_at.strftime('%b %d, %Y') }}</small>
-            {% if idea.deep_dive %}
-            <a href="/idea/{{ idea.id }}" class="badge-analysis"><i data-lucide="bar-chart-2"></i> View Analysis</a>
-            {% else %}
-            <span class="badge-no-analysis">No analysis yet</span>
-            {% endif %}
-        </div>
-    </article>
-    {% endfor %}
+<div class="table-wrapper">
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date Saved</th>
+                <th>Summary</th>
+                <th>Analysis</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for idea in ideas %}
+            <tr>
+                <td class="table-title">{{ idea.title }}</td>
+                <td class="table-date">{{ idea.created_at.strftime('%b %d, %Y') }}</td>
+                <td><a href="/idea/{{ idea.id }}" class="btn-summary"><i data-lucide="file-text"></i> View Summary</a></td>
+                <td>
+                    {% if idea.deep_dive %}
+                    <a href="/idea/{{ idea.id }}" class="badge-analysis"><i data-lucide="bar-chart-2"></i> View Analysis</a>
+                    {% else %}
+                    <span class="badge-no-analysis">No analysis yet</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="/idea/{{ idea.id }}/delete" onsubmit="return confirm('Delete this idea?')">
+                        <button type="submit" class="btn-delete"><i data-lucide="trash-2"></i></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% else %}
 <div class="empty-state">
