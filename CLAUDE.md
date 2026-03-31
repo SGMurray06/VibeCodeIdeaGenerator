@@ -6,7 +6,7 @@ All work must be scoped to this directory (`/Users/simonmurray/Desktop/VibeCodeI
 
 ## Project Overview
 
-A FastAPI web app that suggests vibe coding app ideas using the Claude Haiku 4.5 API. Two users (Euty and Simon) enter their work experience, the app generates 3 tailored app suggestions, users can save ideas to SQLite, and clicking a saved idea opens a detail page for deep-dive analysis (build requirements, route to market, adoption strategy).
+A FastAPI web app that suggests vibe coding app ideas using the Claude Haiku 4.5 API. Two users (Euty and Simon) enter their experience and current interests, the app generates 3 practical, tailored app suggestions (with a "why it's exciting" hook), users can save ideas to SQLite, and clicking a saved idea opens a detail page for deep-dive analysis (build requirements, first weekend sprint, route to market, growth playbook).
 
 ## Tech Stack
 
@@ -22,13 +22,13 @@ A FastAPI web app that suggests vibe coding app ideas using the Claude Haiku 4.5
 ```
 app.py              # FastAPI app, all routes, entry point
 database.py         # SQLAlchemy engine, SessionLocal, Base, init_db(), get_db()
-models.py           # Idea ORM model (single table: ideas)
+models.py           # ORM models: Idea table + UserProfile table (one per user)
 claude_client.py    # AsyncAnthropic wrapper: generate_ideas(), generate_deep_dive()
 templates/
   base.html         # Layout: Google Fonts, Pico CSS, Lucide icons CDN, sticky nav, footer, Lucide init
-  home.html         # Gradient hero, input section card, experience form, idea cards with save buttons
-  saved.html        # Page header with count, idea cards grid with analysis badges, empty state
-  detail.html       # Gradient accent header, collapsible experience, deep-dive display (marked.js), CTA
+  home.html         # Gradient hero, experience form with per-user save buttons, idea cards with why_exciting
+  saved.html        # Page header with count, ideas table with delete buttons, empty state
+  detail.html       # Gradient accent header, collapsible experience, deep-dive display (icons, checklists, callouts, progress bar), CTA
 static/
   style.css         # Design system: CSS custom properties, component styles, animations, responsive
 .env                # ANTHROPIC_API_KEY (not committed)
@@ -43,14 +43,17 @@ requirements.txt    # Python dependencies
 | GET    | `/`                      | Home page with experience form                 |
 | POST   | `/generate`              | Call Claude API, render 3 idea cards            |
 | POST   | `/save`                  | Save idea to DB, redirect to /saved (PRG)      |
-| GET    | `/saved`                 | List all saved ideas                           |
+| GET    | `/saved`                 | List all saved ideas with delete buttons        |
 | GET    | `/idea/{id}`             | Idea detail page with deep-dive content        |
 | POST   | `/idea/{id}/deep-dive`   | Generate deep-dive via Claude, redirect back   |
 | POST   | `/idea/{id}/delete`      | Delete idea, redirect to /saved                |
+| POST   | `/api/profile`           | Save/update user experience (JSON, upsert)     |
 
 ## Database Schema
 
-Single table `ideas`: id (PK), title, summary, euty_experience, simon_experience, deep_dive (nullable), created_at.
+Two tables:
+- `ideas`: id (PK), title, summary, euty_experience, simon_experience, deep_dive (nullable), created_at
+- `user_profiles`: id (PK), name ("Euty" or "Simon"), experience (text), created_at — one row per user, upserted on save
 
 ## Development Commands
 
@@ -76,8 +79,10 @@ uvicorn app:app --reload --port 8000
 - **Synchronous SQLAlchemy**: SQLite latency is negligible, no async DB driver needed
 - **JSON parsing**: Claude responses are stripped of markdown code fences before `json.loads()`
 - **Markdown rendering**: Deep-dive content stored as raw markdown, rendered client-side with marked.js
-- **Loading UX**: JavaScript disables submit buttons and shows spinner during API calls
-- **Default experiences**: Euty and Simon have pre-filled default experience text in the home page form
+- **Loading UX**: JavaScript disables submit buttons and shows spinner during API calls; deep-dive generation shows animated progress bar with stage labels and elapsed timer
+- **Per-user profile save**: Each user has an independent Save button; experience is upserted (one saved version per user) via `/api/profile` endpoint
+- **Saved experiences**: Home page pre-fills textareas from saved profiles; changes are not persisted unless Save is clicked
+- **Creative prompts**: Idea generation uses rotating creative constraints, temperature 0.8, and returns a `why_exciting` field; deep-dive uses a co-founder persona with 4 sections (build, weekend sprint, market, growth)
 - **Session persistence**: Generated ideas persist on home page via sessionStorage until new ones are generated
 - **Lucide icons**: Initialized via `lucide.createIcons()` on DOMContentLoaded; must be re-called after dynamic HTML injection (e.g., sessionStorage restore)
 
