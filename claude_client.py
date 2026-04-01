@@ -5,7 +5,10 @@ import re
 
 from anthropic import AsyncAnthropic
 
-client = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+api_key = os.getenv("ANTHROPIC_API_KEY")
+if not api_key:
+    print("WARNING: ANTHROPIC_API_KEY not set. AI features will not work.")
+client = AsyncAnthropic(api_key=api_key or "missing")
 
 MODEL = "claude-haiku-4-5-20251001"
 

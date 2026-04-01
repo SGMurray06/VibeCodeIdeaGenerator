@@ -23,7 +23,17 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 @app.on_event("startup")
 def on_startup():
+    print(f"BASE_DIR: {BASE_DIR}")
+    print(f"Static dir exists: {os.path.isdir(os.path.join(BASE_DIR, 'static'))}")
+    print(f"Templates dir exists: {os.path.isdir(os.path.join(BASE_DIR, 'templates'))}")
+    print(f"ANTHROPIC_API_KEY set: {bool(os.getenv('ANTHROPIC_API_KEY'))}")
     init_db()
+    print("Database initialized successfully")
+
+
+@app.get("/health")
+async def health():
+    return {"status": "ok", "base_dir": BASE_DIR}
 
 
 @app.get("/")
