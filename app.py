@@ -41,9 +41,9 @@ async def home(request: Request, db: Session = Depends(get_db)):
     euty = db.query(UserProfile).filter(UserProfile.name == "Euty").first()
     simon = db.query(UserProfile).filter(UserProfile.name == "Simon").first()
     return templates.TemplateResponse(
-        "home.html",
-        {
-            "request": request,
+        request=request,
+        name="home.html",
+        context={
             "euty_experience": euty.experience if euty else "",
             "simon_experience": simon.experience if simon else "",
         },
@@ -58,7 +58,6 @@ async def generate(
     db: Session = Depends(get_db),
 ):
     ctx = {
-        "request": request,
         "euty_experience": euty_experience,
         "simon_experience": simon_experience,
     }
@@ -67,10 +66,10 @@ async def generate(
         ideas = await generate_ideas(euty_experience, simon_experience)
     except Exception as e:
         ctx["error"] = f"Failed to generate ideas: {e}"
-        return templates.TemplateResponse("home.html", ctx)
+        return templates.TemplateResponse(request=request, name="home.html", context=ctx)
 
     ctx["ideas"] = ideas
-    return templates.TemplateResponse("home.html", ctx)
+    return templates.TemplateResponse(request=request, name="home.html", context=ctx)
 
 
 @app.post("/save")
@@ -96,8 +95,9 @@ async def save(
 async def saved(request: Request, saved: int = 0, db: Session = Depends(get_db)):
     ideas = db.query(Idea).order_by(Idea.created_at.desc()).all()
     return templates.TemplateResponse(
-        "saved.html",
-        {"request": request, "ideas": ideas, "saved": saved},
+        request=request,
+        name="saved.html",
+        context={"ideas": ideas, "saved": saved},
     )
 
 
@@ -109,7 +109,7 @@ async def idea_detail(
     if not idea:
         raise HTTPException(status_code=404, detail="Idea not found")
     return templates.TemplateResponse(
-        "detail.html", {"request": request, "idea": idea}
+        request=request, name="detail.html", context={"idea": idea}
     )
 
 
